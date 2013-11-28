@@ -24,10 +24,13 @@ import org.bukkit.command.CommandSender;
 public enum UsageMessage {
 
     NOTES_CREATE("{TAG}/{LABEL} create <message>"),
+    NOTES_DELETE("{TAG}/{LABEL} delete <note number>"),
     NOTES_INFO("{TAG}/{LABEL} info <note number>"),
     NOTES_INFO_OTHER("{TAG}/{LABEL} info [player] <note number>"),
     NOTES_LIST_OTHER("&4Additional usage: &c/{LABEL} list [player]"),
-    NOTES_SHARE("{TAG}/{LABEL} share <note number> <player>");
+    NOTES_MODIFY("{TAG}/{LABEL} modify <note number> <option> <value>"),
+    NOTES_SHARE("{TAG}/{LABEL} share <note number> <player>"),
+    NOTES_VIEW("{TAG}/{LABEL} view <note number>");
 
     private String message;
 
@@ -36,7 +39,7 @@ public enum UsageMessage {
     }
 
     public void sendTo(CommandSender sender, String label) {
-        sender.sendMessage(ChatColor.RED + ChatColor.translateAlternateColorCodes('&', message).replace("{LABEL}", label).replace("{TAG}", ChatColor.DARK_RED + "USAGE: "));
+        sender.sendMessage(ChatColor.RED + ChatColor.translateAlternateColorCodes('&', message).replace("{LABEL}", label).replace("{TAG}", ChatColor.DARK_RED + "USAGE: " + ChatColor.RED));
     }
 
     public void sendTo(CommandSender sender, String label, String... replacements) {

@@ -24,6 +24,7 @@ import org.bukkit.command.CommandSender;
 
 public enum ErrorMessage implements MessageReferencer {
 
+    CANNOT_MODIFY_NOTE,
     CANNOT_SHARE_NOTE_WITH_SELF,
     CANNOT_UNSHARE_NOTE_FROM_SELF,
     INVALID_PAGE,
@@ -32,6 +33,8 @@ public enum ErrorMessage implements MessageReferencer {
     NO_PERMISSION,
     NOTE_ALREADY_SHARED,
     NOTE_NOT_SHARED,
+    NOTE_VALUE_ALREADY_SET,
+    OBJECT_MUST_BE_BOOLEAN,
     OBJECT_MUST_BE_INT;
 
     private String path;

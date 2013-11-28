@@ -23,12 +23,19 @@ import org.bukkit.command.CommandSender;
 public enum PermissionNode {
 
     NOTES_CREATE,
+    NOTES_DELETE,
     NOTES_INFO,
     NOTES_INFO_OTHER,
     NOTES_LIST,
     NOTES_LIST_OTHER,
+    NOTES_MODIFY,
+    NOTES_MODIFY_MEMBEREDIT,
+    NOTES_MODIFY_NAME,
     NOTES_SHARING,
-    NOTES_SAVELOC;
+    NOTES_SAVELOC,
+    NOTES_VIEW,
+
+    SAVEALL;
 
     private String permission;
 

@@ -18,6 +18,8 @@
  */
 package com.stealthyone.mcb.notetaker.backend.notes;
 
+import com.stealthyone.mcb.notetaker.NoteTaker;
+import com.stealthyone.mcb.notetaker.backend.NoteManager;
 import com.stealthyone.mcb.notetaker.messages.NoticeMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -40,6 +42,10 @@ public class Note {
 
     public String getName() {
         return config.getString("name", "" + ChatColor.RED + ChatColor.ITALIC + "Untitled");
+    }
+
+    public void setName(String newValue) {
+        config.set("name", newValue);
     }
 
     public String getMessage() {
@@ -68,6 +74,7 @@ public class Note {
                 NoticeMessage.NOTE_SHARE_RECEIVED.sendTo(player, getCreator());
             }
             config.set("members", curMembers);
+            NoteTaker.getInstance().getNoteManager().addNote(memberName, getId());
             return true;
         }
         return false;
@@ -79,6 +86,7 @@ public class Note {
         if (curMembers.contains(memberName)) {
             curMembers.remove(memberName);
             config.set("members", curMembers);
+            NoteTaker.getInstance().getNoteManager().removeNote(memberName, getId());
             return true;
         }
         return false;
@@ -88,12 +96,27 @@ public class Note {
         return config.getBoolean("editableByMembers", false);
     }
 
-    public void setMembersCanEdit(boolean newValue) {
-        config.set("editableByMembers", newValue);
+    public boolean setMembersCanEdit(boolean newValue) {
+        if (canMembersEdit() != newValue) {
+            config.set("editableByMembers", newValue);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public boolean doesPlayerHaveAccess(String playerName) {
         return getCreator().equalsIgnoreCase(playerName) || getMembers().contains(playerName.toLowerCase());
+    }
+
+    public void delete() {
+        NoteManager noteManager = NoteTaker.getInstance().getNoteManager();
+        String id = getId();
+        if (getCreatorRaw() != null)
+            noteManager.removeNote(getCreatorRaw(), id);
+        for (String name : getMembers())
+            noteManager.removeNote(name, id);
+        noteManager.getNoteFile().getConfig().set(id, null);
     }
 
 }

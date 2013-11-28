@@ -26,9 +26,13 @@ public enum NoticeMessage implements MessageReferencer {
 
     NOTE_CREATED,
     NOTE_SAVEDLOC,
+    NOTE_SET_MEMBEREDIT,
+    NOTE_SET_NAME,
     NOTE_SHARE_RECEIVED,
     NOTE_SHARE_SENT,
-    NOTE_UNSHARED;
+    NOTE_UNSHARED,
+
+    PLUGIN_SAVED;
 
     private String path;
 

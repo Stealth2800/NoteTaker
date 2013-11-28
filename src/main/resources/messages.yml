@@ -1,4 +1,5 @@
 errors:
+  cannot_modify_note: '&cYou cannot modify this note.'
   cannot_share_note_with_self: '&cYou cannot share a note with yourself.'
   cannot_unshare_note_with_self: '&cYou cannot unshare a note from yourself.'
   invalid_page: '&cInvalid page: &4%s &c- must be greater than zero (0).'
@@ -6,11 +7,16 @@ errors:
   must_be_player: '&cYou must be a player to use this command.'
   note_already_shared: '&cThat note is already shared with &4%s&c.'
   note_not_shared: '&cThat note isn''t shared with &4%s&c.'
+  note_value_already_set: '&cValue is already set to %s.'
   no_permission: '&cYou do not have permission to use this command.'
+  object_must_be_boolean: '&c%s must be true or false.'
   object_must_be_int: '&c%s must be an integer.'
 notices:
   note_created: '&aSuccessfully created a note.'
   note_savedloc: '&aSuccessfully saved location to a new note.'
+  note_set_memberedit: '&aSet note editable by members to %s&a.'
+  note_set_name: '&aSet note''s name to &6%s&a.'
   note_share_received: '&6%s &ajust shared a note with you!'
   note_share_sent: '&aSuccessfully shared note with &6%s&a.'
   note_unshared: '&aSuccessfully unshared note with &6%s&a.'
+  plugin_saved: '&aPlugin files saved to the disk.'

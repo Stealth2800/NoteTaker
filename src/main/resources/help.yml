@@ -1,0 +1,20 @@
+notes:
+  description: 'Help relating to notes in general'
+  messages:
+    - '&e/note help &6&o- Shows note help'
+    - '&e/note create <message> &6&o- Create a note'
+    - '&e/note delete <note number> &6&o- Deletes a note'
+    - '&e/note view <note number> &6&o- Views a note'
+    - '&e/note info <note number> &6&o- Shows info on a note'
+    - '&e/note list &6&o- Lists all your notes'
+    - '&e/note share <note number> <player> &6&o- Shares a note with a player'
+    - '&e/note unshare <note number> <player> &6&o- Unshares a note from a player'
+    - '&e/note version &6&o- Shows plugin info'
+    - '&e/note saveall &6&o- Saves files to the disk'
+  modification:
+    description: 'Help relating to modifying notes'
+    messages:
+      - '&e/note modify <note number> <option> <value> &6&o- Base modify command'
+      - '&3Available options to modify:'
+      - '&3- &ename &6&o- Name of the note'
+      - '&3- &ememberedit &6&o- Whether or not members can edit the note'

@@ -27,6 +27,7 @@ import com.stealthyone.mcb.notetaker.messages.UsageMessage;
 import com.stealthyone.mcb.notetaker.permissions.PermissionNode;
 import com.stealthyone.mcb.stbukkitlib.lib.updates.UpdateChecker;
 import com.stealthyone.mcb.stbukkitlib.lib.utils.ArrayUtils;
+import com.stealthyone.mcb.stbukkitlib.lib.utils.InputUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -54,6 +55,16 @@ public class CmdNoteTaker implements CommandExecutor {
                     cmdCreate(sender, command, label, args);
                     return true;
 
+                /* Delete note command */
+                case "delete":
+                    cmdDelete(sender, command, label, args);
+                    return true;
+
+                /* Note help command */
+                case "help":
+                    plugin.getHelpManager().handleHelpCommand(sender, "notes", label, args, 1);
+                    return true;
+
                 /* Note info command */
                 case "info":
                     cmdInfo(sender, command, label, args);
@@ -62,6 +73,16 @@ public class CmdNoteTaker implements CommandExecutor {
                 /* List notes command */
                 case "list":
                     cmdList(sender, command, label, args);
+                    return true;
+
+                /* Modify note command */
+                case "modify":
+                    cmdModify(sender, command, label, args);
+                    return true;
+
+                /* Force plugin to save */
+                case "saveall":
+                    cmdSaveAll(sender, command, label, args);
                     return true;
 
                 /* Save location command */
@@ -83,8 +104,14 @@ public class CmdNoteTaker implements CommandExecutor {
                 case "version":
                     cmdVersion(sender, command, label, args);
                     return true;
+
+                /* View note command */
+                case "view":
+                    cmdView(sender, command, label, args);
+                    return true;
             }
         }
+        plugin.getHelpManager().handleHelpCommand(sender, "notes", label, args, 0);
         return true;
     }
 
@@ -99,8 +126,35 @@ public class CmdNoteTaker implements CommandExecutor {
             UsageMessage.NOTES_CREATE.sendTo(sender, label);
         } else {
             NoteManager noteManager = plugin.getNoteManager();
-            noteManager.createNote(sender.getName(), ArrayUtils.stringArrayToString(args, 1));
+            noteManager.addNote(sender.getName(), noteManager.createNote(sender.getName(), ArrayUtils.stringArrayToString(args, 1)).getId());
             NoticeMessage.NOTE_CREATED.sendTo(sender);
+        }
+    }
+
+    /*
+     * Delete note command
+     */
+    private void cmdDelete(CommandSender sender, Command command, String label, String[] args) {
+        //note delete <note number>
+        if (!PermissionNode.NOTES_DELETE.isAllowed(sender)) {
+            ErrorMessage.NO_PERMISSION.sendTo(sender);
+        } else if (args.length < 2) {
+            UsageMessage.NOTES_DELETE.sendTo(sender, label);
+        } else {
+            int number;
+            try {
+                number = Integer.parseInt(args[1]);
+            } catch (NumberFormatException ex) {
+                ErrorMessage.OBJECT_MUST_BE_INT.sendTo(sender, "Note number");
+                return;
+            }
+
+            NoteManager noteManager = plugin.getNoteManager();
+            try {
+                noteManager.getNotes(sender.getName()).get(number - 1).delete();
+            } catch (IndexOutOfBoundsException ex) {
+                ErrorMessage.INVALID_NOTE_NUMBER.sendTo(sender);
+            }
         }
     }
 
@@ -152,6 +206,7 @@ public class CmdNoteTaker implements CommandExecutor {
                 sender.sendMessage(ChatColor.GOLD + "Creator: " + ChatColor.YELLOW + note.getCreator());
                 sender.sendMessage(ChatColor.GOLD + "Members: " + ChatColor.YELLOW + note.getMembers().toString());
                 sender.sendMessage(ChatColor.GOLD + "Editable by members: " + (note.canMembersEdit() ? ChatColor.GREEN + "TRUE" : ChatColor.RED + "FALSE"));
+                sender.sendMessage(ChatColor.GOLD + "Message: " + ChatColor.YELLOW + note.getMessage());
             }
         }
     }
@@ -197,11 +252,11 @@ public class CmdNoteTaker implements CommandExecutor {
                 List<Note> notes = noteManager.getNotes(target);
                 List<String> messages = new ArrayList<String>();
                 for (int i = 0; i < 8; i++) {
-                    int finalNum = ((page - 1) * 8) + 1;
+                    int finalNum = ((page - 1) * 8) + i;
                     Note curNote;
                     try {
                         curNote = notes.get(finalNum);
-                        messages.add(ChatColor.GOLD + Integer.toString(finalNum) + ") " + (curNote.getCreator().equalsIgnoreCase(senderName) ? ChatColor.YELLOW : ChatColor.RED) + curNote.getName());
+                        messages.add(ChatColor.GOLD + Integer.toString(finalNum + 1) + ") " + (curNote.getCreator().equalsIgnoreCase(senderName) ? ChatColor.YELLOW : ChatColor.RED) + curNote.getName());
                     } catch (IndexOutOfBoundsException ex) {
                         if (messages.size() == 0)
                             messages.add("" + ChatColor.RED + ChatColor.ITALIC + "Nothing here.");
@@ -217,6 +272,99 @@ public class CmdNoteTaker implements CommandExecutor {
     }
 
     /*
+     * Modify note command
+     */
+    private void cmdModify(CommandSender sender, Command command, String label, String[] args) {
+        //note modify <note number> <option> <value>
+        if (!PermissionNode.NOTES_MODIFY.isAllowed(sender)) {
+            ErrorMessage.NO_PERMISSION.sendTo(sender);
+            return;
+        } else if (args.length < 4) {
+            UsageMessage.NOTES_MODIFY.sendTo(sender, label);
+        } else {
+            Note note;
+            int number;
+            try {
+                number = Integer.parseInt(args[1]);
+            } catch (NumberFormatException ex) {
+                ErrorMessage.OBJECT_MUST_BE_INT.sendTo(sender, "Note number");
+                return;
+            }
+
+            try {
+                note = plugin.getNoteManager().getNotes(sender.getName()).get(number - 1);
+            } catch (IndexOutOfBoundsException ex) {
+                ErrorMessage.INVALID_NOTE_NUMBER.sendTo(sender);
+                return;
+            }
+
+            switch (args[2].toLowerCase()) {
+                /* Modify note name command */
+                case "name":
+                    cmdModify_Name(sender, command, label, args, note);
+                    return;
+
+                /* Modify note editable by members setting */
+                case "memberedit":
+                    cmdModify_MemberEdit(sender, command, label, args, note);
+                    return;
+
+                default:
+                    break;
+            }
+        }
+        plugin.getHelpManager().handleHelpCommand(sender, "notes.modification", label, args, 1);
+    }
+
+    /*
+     * Modify note name command
+     */
+    private void cmdModify_Name(CommandSender sender, Command command, String label, String[] args, Note note) {
+        if (!PermissionNode.NOTES_MODIFY_NAME.isAllowed(sender)) {
+            ErrorMessage.NO_PERMISSION.sendTo(sender);
+        } else if (!note.getCreator().equalsIgnoreCase(sender.getName()) && !note.canMembersEdit()) {
+            ErrorMessage.CANNOT_MODIFY_NOTE.sendTo(sender);
+        } else {
+            note.setName(args[3]);
+            NoticeMessage.NOTE_SET_NAME.sendTo(sender, args[3]);
+        }
+    }
+
+    /*
+     * Modify note editable by members setting
+     */
+    private void cmdModify_MemberEdit(CommandSender sender, Command command, String label, String[] args, Note note) {
+        if (!PermissionNode.NOTES_MODIFY_MEMBEREDIT.isAllowed(sender)) {
+            ErrorMessage.NO_PERMISSION.sendTo(sender);
+        } else if (!note.getCreator().equalsIgnoreCase(sender.getName()) && !note.canMembersEdit()) {
+            ErrorMessage.CANNOT_MODIFY_NOTE.sendTo(sender);
+        } else {
+            try {
+                boolean newValue = InputUtils.getInputBoolean(args[3]);
+                if (note.setMembersCanEdit(InputUtils.getInputBoolean(args[3]))) {
+                    NoticeMessage.NOTE_SET_MEMBEREDIT.sendTo(sender, Boolean.toString(newValue));
+                } else {
+                    ErrorMessage.NOTE_VALUE_ALREADY_SET.sendTo(sender, Boolean.toString(newValue));
+                }
+            } catch (IllegalArgumentException ex) {
+                ErrorMessage.OBJECT_MUST_BE_BOOLEAN.sendTo(sender, "Value");
+            }
+        }
+    }
+
+    /*
+     * Save all files to the disk
+     */
+    private void cmdSaveAll(CommandSender sender, Command command, String label, String[] args) {
+        if (!PermissionNode.SAVEALL.isAllowed(sender)) {
+            ErrorMessage.NO_PERMISSION.sendTo(sender);
+        } else {
+            plugin.getNoteManager().saveAll();
+            NoticeMessage.PLUGIN_SAVED.sendTo(sender);
+        }
+    }
+
+    /*
      * Save location command
      */
     private void cmdSaveLoc(CommandSender sender, Command command, String label, String[] args) {
@@ -227,7 +375,7 @@ public class CmdNoteTaker implements CommandExecutor {
         } else {
             NoteManager noteManager = plugin.getNoteManager();
             Location location = ((Player) sender).getLocation();
-            noteManager.createNote(sender.getName(), ChatColor.GOLD + "Saved location: " + ChatColor.RESET + location.getWorld().getName() + " " + location.getX() + ", " + location.getY() + ", " + location.getZ());
+            noteManager.addNote(sender.getName(), noteManager.createNote(sender.getName(), ChatColor.GOLD + "Saved location: " + ChatColor.RESET + location.getWorld().getName() + " " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ()).getId());
             NoticeMessage.NOTE_SAVEDLOC.sendTo(sender);
         }
     }
@@ -258,7 +406,7 @@ public class CmdNoteTaker implements CommandExecutor {
 
             NoteManager noteManager = plugin.getNoteManager();
             try {
-                if (noteManager.getNotes(sender.getName()).get(number).addMember(target)) {
+                if (noteManager.getNotes(sender.getName()).get(number - 1).addMember(target)) {
                     NoticeMessage.NOTE_SHARE_SENT.sendTo(sender, target);
                 } else {
                     ErrorMessage.NOTE_ALREADY_SHARED.sendTo(sender, target);
@@ -294,7 +442,7 @@ public class CmdNoteTaker implements CommandExecutor {
 
             NoteManager noteManager = plugin.getNoteManager();
             try {
-                if (noteManager.getNotes(sender.getName()).get(number).removeMember(target)) {
+                if (noteManager.getNotes(sender.getName()).get(number - 1).removeMember(target)) {
                     NoticeMessage.NOTE_UNSHARED.sendTo(sender, target);
                 } else {
                     ErrorMessage.NOTE_NOT_SHARED.sendTo(sender, target);
@@ -318,6 +466,37 @@ public class CmdNoteTaker implements CommandExecutor {
             String remVer = updateChecker.getNewVersion().replace("v", "");
             sender.sendMessage(ChatColor.RED + "A different version was found on BukkitDev! (Current: " + curVer + " | Remote: " + remVer + ")");
             sender.sendMessage(ChatColor.RED + "You can download it from " + updateChecker.getVersionLink());
+        }
+    }
+
+    /*
+     * View note command
+     */
+    private void cmdView(CommandSender sender, Command command, String label, String[] args) {
+        //note view <note number>
+        if (!PermissionNode.NOTES_VIEW.isAllowed(sender)) {
+            ErrorMessage.NO_PERMISSION.sendTo(sender);
+        } else if (args.length < 2) {
+            UsageMessage.NOTES_VIEW.sendTo(sender, label);
+        } else {
+            int number;
+            try {
+                number = Integer.parseInt(args[1]);
+            } catch (NumberFormatException ex) {
+                ErrorMessage.OBJECT_MUST_BE_INT.sendTo(sender, "Note number");
+                return;
+            }
+
+            Note note;
+            try {
+                note = plugin.getNoteManager().getNotes(sender.getName()).get(number - 1);
+            } catch (IndexOutOfBoundsException ex) {
+                ErrorMessage.INVALID_NOTE_NUMBER.sendTo(sender);
+                return;
+            }
+
+            sender.sendMessage(ChatColor.DARK_GRAY + "=====" + ChatColor.GREEN + "Note: " + ChatColor.AQUA + note.getName() + ChatColor.DARK_GRAY + "=====");
+            sender.sendMessage(ChatColor.GOLD + " \"" + ChatColor.RESET + note.getMessage() + ChatColor.GOLD + "\"");
         }
     }
 

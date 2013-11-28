@@ -21,6 +21,8 @@ package com.stealthyone.mcb.notetaker;
 import com.stealthyone.mcb.notetaker.backend.NoteManager;
 import com.stealthyone.mcb.notetaker.commands.CmdNoteTaker;
 import com.stealthyone.mcb.stbukkitlib.config.ConfigHelper;
+import com.stealthyone.mcb.stbukkitlib.lib.help.HelpAPI;
+import com.stealthyone.mcb.stbukkitlib.lib.help.HelpManager;
 import com.stealthyone.mcb.stbukkitlib.lib.messages.MessageManager;
 import com.stealthyone.mcb.stbukkitlib.lib.updates.UpdateChecker;
 import org.bukkit.Bukkit;
@@ -64,6 +66,7 @@ public class NoteTaker extends JavaPlugin {
     private Logger logger;
 
     private MessageManager messageManager;
+    private HelpManager helpManager;
     private UpdateChecker updateChecker;
 
     private NoteManager noteManager;
@@ -83,7 +86,9 @@ public class NoteTaker extends JavaPlugin {
 
         /* Setup important plugin components */
         noteManager = new NoteManager(this);
+
         messageManager = new MessageManager(this);
+        helpManager = HelpAPI.registerHelp(this);
 
         /* Register commands */
         getCommand("notetaker").setExecutor(new CmdNoteTaker(this));
@@ -94,7 +99,12 @@ public class NoteTaker extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        noteManager.saveAll();
         Log.info("NoteTaker v" + getDescription().getVersion() + " by Stealth2800 disabled.");
+    }
+
+    public HelpManager getHelpManager() {
+        return helpManager;
     }
 
     public MessageManager getMessageManager() {

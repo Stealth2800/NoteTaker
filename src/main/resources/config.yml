@@ -1,3 +1,4 @@
 Debug: true
+Check for updates: true
 Purge notes: true
 Autosave interval: 10

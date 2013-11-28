@@ -50,6 +50,7 @@ public class NoteManager implements Autosavable {
         noteFile = new YamlFileManager(plugin.getDataFolder() + File.separator + "notes.yml");
         playerFile = new YamlFileManager(plugin.getDataFolder() + File.separator + "players.yml");
         Log.info("Loaded " + reloadNotes() + " notes from notes.yml");
+        indexPlayers();
 
         int saveTime = ConfigHelper.AUTOSAVE_INTERVAL.get();
         if (saveTime >= 1) {
@@ -67,6 +68,10 @@ public class NoteManager implements Autosavable {
         }
         playerFile.saveFile();
         noteFile.saveFile();
+    }
+
+    public YamlFileManager getNoteFile() {
+        return noteFile;
     }
 
     public int reloadNotes() {
@@ -131,21 +136,27 @@ public class NoteManager implements Autosavable {
     }
 
     public List<Note> getNotes(String playerName) {
+        Log.debug("getNotes for " + playerName);
         playerName = playerName.toLowerCase();
         List<String> noteIds = noteIndex.get(playerName);
         List<Note> returnList = new ArrayList<Note>();
         List<String> notesToRemove = new ArrayList<String>();
         if (noteIds != null) {
+            Log.debug("Note IDs not null");
             for (String id : noteIds) {
+                Log.debug("id: " + id);
                 Note note = getNote(id);
                 if (note == null || !note.doesPlayerHaveAccess(playerName)) {
+                    Log.debug("removing note");
                     notesToRemove.add(id);
                 } else {
+                    Log.debug("Adding note");
                     returnList.add(note);
                 }
             }
 
             for (String id : notesToRemove) {
+                Log.debug("Removing " + id);
                 noteIds.remove(id);
                 noteIndex.put(playerName, noteIds);
             }
@@ -154,8 +165,20 @@ public class NoteManager implements Autosavable {
     }
 
     public void addNote(String playerName, String noteId) {
+        playerName = playerName.toLowerCase();
         List<String> notes = noteIndex.get(playerName);
+        if (notes == null)
+            notes = new ArrayList<String>();
         notes.add(0, noteId);
+        noteIndex.put(playerName, notes);
+    }
+
+    public void removeNote(String playerName, String noteId) {
+        playerName = playerName.toLowerCase();
+        List<String> notes = noteIndex.get(playerName);
+        if (notes == null)
+            notes = new ArrayList<String>();
+        notes.remove(noteId);
         noteIndex.put(playerName, notes);
     }
 
