@@ -20,7 +20,7 @@ package com.stealthyone.mcb.notetaker;
 
 import com.stealthyone.mcb.notetaker.backend.NoteManager;
 import com.stealthyone.mcb.notetaker.commands.CmdNoteTaker;
-import com.stealthyone.mcb.stbukkitlib.config.ConfigHelper;
+import com.stealthyone.mcb.notetaker.config.ConfigHelper;
 import com.stealthyone.mcb.stbukkitlib.lib.help.HelpAPI;
 import com.stealthyone.mcb.stbukkitlib.lib.help.HelpManager;
 import com.stealthyone.mcb.stbukkitlib.lib.messages.MessageManager;
@@ -36,7 +36,7 @@ public class NoteTaker extends JavaPlugin {
     public final static class Log {
 
         public final static void debug(String msg) {
-            if (ConfigHelper.DEBUG.getBoolean())
+            if (ConfigHelper.DEBUG.get())
                 instance.logger.log(Level.INFO, String.format("[%s DEBUG] %s", instance.getName(), msg));
         }
 

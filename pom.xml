@@ -50,7 +50,7 @@
             </resource>
         </resources>
         <defaultGoal>clean install</defaultGoal>
-        <finalName>${project.artifactId} v${project.version}-b${buildNumber}</finalName>
+        <finalName>${project.name} v${project.version}-b${buildNumber}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
