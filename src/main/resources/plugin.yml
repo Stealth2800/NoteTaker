@@ -1,0 +1,11 @@
+name: ${project.name}
+version: ${project.version}
+description: Allows players to take notes via commands
+depend: [StBukkitLib]
+softdepend: []
+author: Stealth2800
+website: http://stealthyone.com/bukkit
+main: com.stealthyone.mcb.notetaker.NoteTaker
+commands:
+  notetaker:
+    aliases: [note,notes]
