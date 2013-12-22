@@ -1,7 +1,7 @@
 /*
- *                           NoteTaker
+ * Bukkit plugin: NoteTaker
  * Copyright (C) 2013 Stealth2800 <stealth2800@stealthyone.com>
- *              Website: <http://stealthyone.com/>
+ * Website: <http://stealthyone.com/bukkit>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import com.stealthyone.mcb.stbukkitlib.lib.help.HelpAPI;
 import com.stealthyone.mcb.stbukkitlib.lib.help.HelpManager;
 import com.stealthyone.mcb.stbukkitlib.lib.messages.MessageManager;
 import com.stealthyone.mcb.stbukkitlib.lib.updates.UpdateChecker;
+import com.stealthyone.mcb.stbukkitlib.lib.updating.UpdateChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -35,20 +36,20 @@ public class NoteTaker extends JavaPlugin {
 
     public final static class Log {
 
-        public final static void debug(String msg) {
+        public static void debug(String msg) {
             if (ConfigHelper.DEBUG.get())
                 instance.logger.log(Level.INFO, String.format("[%s DEBUG] %s", instance.getName(), msg));
         }
 
-        public final static void info(String msg) {
+        public static void info(String msg) {
             instance.logger.log(Level.INFO, String.format("[%s] %s", instance.getName(), msg));
         }
 
-        public final static void warning(String msg) {
+        public static void warning(String msg) {
             instance.logger.log(Level.WARNING, String.format("[%s] %s", instance.getName(), msg));
         }
 
-        public final static void severe(String msg) {
+        public static void severe(String msg) {
             instance.logger.log(Level.SEVERE, String.format("[%s] %s", instance.getName(), msg));
         }
 
@@ -59,7 +60,7 @@ public class NoteTaker extends JavaPlugin {
         instance = this;
     }
 
-    public final static NoteTaker getInstance() {
+    public static NoteTaker getInstance() {
         return instance;
     }
 

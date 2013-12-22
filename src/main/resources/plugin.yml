@@ -8,4 +8,4 @@ website: http://stealthyone.com/bukkit
 main: com.stealthyone.mcb.notetaker.NoteTaker
 commands:
   notetaker:
-    aliases: [note,notes]
+    aliases: [note, notes]
